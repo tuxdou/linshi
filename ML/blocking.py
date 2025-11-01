@@ -25,27 +25,43 @@ def bucket_key(record, key=("domain", "lastname_initial"), ignore_common_domains
 
     Common email domains can be ignored by setting `ignore_common_domains=True`.
     """
-
     _, local, domain = normalize_email(record["email"])
-    first, last = split_name(normalize_name(record["name"]))
+    _, last = split_name(normalize_name(record["name"]))
+
+    if ignore_common_domains and domain in COMMON_DOMAINS:
+        domain_part = ""
+    else:
+        domain_part = domain
+
+    if last:
+        lastname_initial = last[:1]
+    else:
+        lastname_initial = ""
+
+    gh_user = parse_gh_handle(local, domain) 
+    if gh_user:
+        base = gh_user
+    else:
+        base = local
+
+    if base:
+        prefix_initial = base[:1]
+    else:
+        prefix_initial = ""
+
+    gh_handle = gh_user  
+
+    components = {
+        "domain": domain_part,
+        "lastname_initial": lastname_initial,
+        "prefix_initial": prefix_initial,
+        "gh_handle": gh_handle,
+    }
 
     parts = []
     for k in key:
-        if k == "domain":
-            if ignore_common_domains and domain in COMMON_DOMAINS:
-                parts.append("")
-            else:
-                parts.append(domain)
-        elif k == "lastname_initial":
-            parts.append(last[:1] if last else "")
-        elif k == "prefix_initial":
-            gh_user = parse_gh_handle(local, domain)
-            base = gh_user or local
-            parts.append(base[:1] if base else "")
-        elif k == "gh_handle":
-            parts.append(parse_gh_handle(local, domain))
-        else:
-            parts.append("")
+        parts.append(components.get(k, ""))
+
     return "|".join(parts)
 
 def make_candidates(records, key=("domain", "lastname_initial"),
@@ -62,7 +78,6 @@ def make_candidates(records, key=("domain", "lastname_initial"),
         for i in range(n):
             for j in range(i + 1, n):
                 yield items[i], items[j]
-                
 
 def merge_candidates(records, max_bucket=1000, ignore_common_domains=True):
     seen = set()

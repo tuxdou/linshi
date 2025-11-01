@@ -10,7 +10,8 @@ def build_dataset(candidates_csv, labels_csv, out_csv):
         cands,
         labels,
         on=["name_1", "email_1", "name_2", "email_2"],
-        how="left"
+        how="left",
+        validate="many_to_one"
     )
 
 

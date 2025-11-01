@@ -6,10 +6,12 @@ import ml_predict
 def main():
     
     print("Converting labels")
-    convert_labels.parse_excel(in_xlsx="devs_similarity_t=0.65.xlsx",
-                               out_labels_csv="labels_from_excel.csv",
-                               out_cands_csv="candidates_from_excel.csv"
-                               )
+    convert_labels.parse_excel(
+        input_xlsx="devs_similarity_t=0.65.xlsx",
+        output_labels_csv="labels_from_excel.csv",
+        output_candidates_csv="candidates_from_excel.csv"
+        )
+
 
     print("Building training dataset")
     ml_build_dataset.build_dataset(candidates_csv="candidates_from_excel.csv",
