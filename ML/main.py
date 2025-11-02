@@ -26,7 +26,7 @@ def main():
     ml_predict.score_candidates(candidates_csv="devs_similarity.csv",
                                 model_pkl="logreg.pkl",
                                 out_csv="3ml_scored_p0915.csv",
-                                threshold=0.65
+                                threshold=0.915
                                 )
 
 if __name__ == "__main__":

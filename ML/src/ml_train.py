@@ -34,28 +34,28 @@ def load_dataset(csv_path):
 def train_and_eval(train_csv, model_out="logreg.pkl", test_size=0.25, random_state=42):
     X, y = load_dataset(train_csv)
 
-    X_tr, X_te, y_tr, y_te = train_test_split(
+    x_train, x_test, y_train, y_test = train_test_split(
         X, y, test_size=test_size, stratify=y, random_state=random_state
     )
 
     # LogisticRegression
     clf = LogisticRegression(max_iter=500, class_weight="balanced")
-    clf.fit(X_tr, y_tr)
+    clf.fit(x_train, y_train)
 
-    proba = clf.predict_proba(X_te)[:, 1]
+    proba = clf.predict_proba(x_test)[:, 1]
 
     threshold = 0.916
     pred = (proba >= threshold).astype(int)
 
-    roc = roc_auc_score(y_te, proba)
-    pr  = average_precision_score(y_te, proba)
+    roc = roc_auc_score(y_test, proba)
+    pr  = average_precision_score(y_test, proba)
     print("ROC-AUC:", round(roc, 3))
     print("PR-AUC :", round(pr, 3))
-    print(classification_report(y_te, pred, digits=3, zero_division=0))
+    print(classification_report(y_test, pred, digits=3, zero_division=0))
 
 
    
-    p, r, thr = precision_recall_curve(y_te, proba)
+    p, r, thr = precision_recall_curve(y_test, proba)
     f1s = 2 * p * r / np.clip(p + r, 1e-9, None)
     best_i = int(np.nanargmax(f1s))
     best_thr = thr[best_i-1] if best_i > 0 and best_i-1 < len(thr) else 0.5
