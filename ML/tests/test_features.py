@@ -57,7 +57,7 @@ def test_tfidf_similarity_handles_empty():
 
 def test_phonetic_similarity_exact_match():
     """Should be 1.0 when both phonetic encodings match."""
-    assert phonetic_similarity("smith", "smith") == 1.0
+    assert phonetic_similarity("smith", "smith") == pytest.approx(1.0)
 
 
 def test_phonetic_similarity_partial_match():
@@ -69,7 +69,7 @@ def test_phonetic_similarity_partial_match():
 
 def test_phonetic_similarity_no_match():
     """Should be 0.0 when completely different sounds."""
-    assert phonetic_similarity("cat", "dog") == 0.0
+    assert phonetic_similarity("cat", "dog") == pytest.approx(0.0)
 
 
 # ------------------------------------------------

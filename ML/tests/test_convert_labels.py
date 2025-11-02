@@ -1,4 +1,5 @@
 # tests/test_excel_io.py
+import math
 import os
 import pandas as pd
 import numpy as np
@@ -20,8 +21,8 @@ from ML.src.convert_labels import (
 # ---------------- convert_to_float ----------------
 
 def test_convert_to_float_numbers():
-    assert convert_to_float("3.14") == 3.14
-    assert convert_to_float(2) == 2.0
+    assert math.isclose(convert_to_float("3.14"), 3.14)
+    assert math.isclose(convert_to_float(2), 2.0)
 
 
 def test_convert_to_float_invalid_input():
@@ -95,10 +96,10 @@ def test_parse_compact_row_basic():
     assert row["email_1"] == "alice@example.com"
     assert row["name_2"] == "Bob"
     assert row["email_2"] == "bob@example.com"
-    assert row["c1"] == 0.1
-    assert row["c2"] == 0.2
-    assert row["c3.1"] == 0.3
-    assert row["c3.2"] == 0.4
+    assert row["c1"] == pytest.approx(0.1)
+    assert row["c2"] == pytest.approx(0.2)
+    assert row["c3.1"] == pytest.approx(0.3)
+    assert row["c3.2"] == pytest.approx(0.4)
     assert row["c4"] is True
     assert row["c5"] is False
     assert row["c6"] is True
@@ -111,12 +112,13 @@ def test_parse_compact_row_commas_in_names():
     # 这里保留你当前实现的期望（无空格的“Alice,A.”、“Bob,B.”）
     assert row["name_1"] == "Alice,A."
     assert row["name_2"] == "Bob,B."
-    assert row["c1"] == 1.0
-    assert row["c2"] == 2.0
+    assert row["c1"] == pytest.approx(1.0)
+    assert row["c2"] == pytest.approx(2.0)
     assert row["c4"] is True
     assert row["c5"] is False
     assert row["c6"] is True
     assert row["c7"] is False
+
 
 # ---------------- parse_compact_sheet ----------------
 
