@@ -51,7 +51,8 @@ def train_and_eval(train_csv, model_out="logreg.pkl", test_size=0.25, random_sta
     pr  = average_precision_score(y_te, proba)
     print("ROC-AUC:", round(roc, 3))
     print("PR-AUC :", round(pr, 3))
-    print(classification_report(y_te, pred, digits=3))
+    print(classification_report(y_te, pred, digits=3, zero_division=0))
+
 
    
     p, r, thr = precision_recall_curve(y_te, proba)

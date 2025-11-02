@@ -1,7 +1,7 @@
-import convert_labels
-import ml_build_dataset
-import ml_train
-import ml_predict
+import src.convert_labels as convert_labels
+import src.ml_build_dataset as ml_build_dataset
+import src.ml_train as ml_train
+import src.ml_predict as ml_predict
 
 def main():
     

@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import joblib
-from features import build_features  
+from src.features import build_features  
 
 def score_candidates(candidates_csv, model_pkl, out_csv, threshold=None, topk=None):
     df = pd.read_csv(candidates_csv).copy()
@@ -13,7 +13,6 @@ def score_candidates(candidates_csv, model_pkl, out_csv, threshold=None, topk=No
         feats.append(build_features(a, b))
     X = np.vstack(feats)
 
-    # Load the model and score it
     model = joblib.load(model_pkl)
     proba = model.predict_proba(X)[:, 1]
     df["proba"] = proba

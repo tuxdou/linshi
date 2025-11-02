@@ -1,12 +1,7 @@
-# src/parse_excel_script.py
 import pandas as pd
 from pathlib import Path
 
-
-# ---- 小工具函数 ----
-
 def convert_to_float(value):
-    """安全地把字符串转成 float。"""
     try:
         return float(value)
     except Exception:
@@ -14,7 +9,6 @@ def convert_to_float(value):
 
 
 def convert_to_bool(value):
-    """把字符串或数字转成布尔值（True/False/None）。"""
     s = str(value).strip().lower()
     if s in ("true", "1", "t", "yes"):
         return True
@@ -24,7 +18,6 @@ def convert_to_bool(value):
 
 
 def has_split_columns(df):
-    """判断 Excel 是否已经拆好列。"""
     expected = {
         "name_1", "email_1", "name_2", "email_2",
         "c1", "c2", "c3.1", "c3.2", "c4", "c5", "c6", "c7"
@@ -33,7 +26,6 @@ def has_split_columns(df):
 
 
 def normalize_label_column(df):
-    """确保有统一的小写 'label' 列。"""
     base = df.copy()
     if "label" in base.columns:
         base["label"] = base["label"].astype(str).str.upper()
@@ -46,7 +38,6 @@ def normalize_label_column(df):
 
 
 def find_label_column_name(df):
-    """返回 label 列的名称（可能是 label 或 Label）。"""
     if "label" in df.columns:
         return "label"
     if "Label" in df.columns:
@@ -55,12 +46,7 @@ def find_label_column_name(df):
 
 
 def parse_compact_row(cell_value):
-    """
-    解析“紧凑模式”的一整行字符串。
-    - 用逗号分割
-    - 最后8项是 c1-c7
-    - 前面部分拆出两个姓名和邮箱
-    """
+
     parts = str(cell_value).split(",")
     metrics = parts[-8:]
     left = parts[:-8]
@@ -69,22 +55,22 @@ def parse_compact_row(cell_value):
     email1, email2 = "", ""
     i = 0
 
-    # 提取 name_1
+    # name_1
     while i < len(left) and "@" not in left[i]:
         name1_list.append(left[i])
         i += 1
 
-    # 提取 email_1
+    # email_1
     if i < len(left):
         email1 = left[i].strip()
         i += 1
 
-    # 提取 name_2
+    # name_2
     while i < len(left) and "@" not in left[i]:
         name2_list.append(left[i])
         i += 1
 
-    # 提取 email_2
+    # email_2
     if i < len(left):
         email2 = left[i].strip()
         i += 1
@@ -110,7 +96,6 @@ def parse_compact_row(cell_value):
 
 
 def parse_compact_sheet(df):
-    """处理紧凑格式的 Excel 数据。"""
     first_col = str(df.columns[0])
     parsed = df[first_col].apply(parse_compact_row).apply(pd.Series)
 
@@ -126,31 +111,28 @@ def parse_compact_sheet(df):
 
 
 def fill_missing_columns(df, columns):
-    """给缺失的列填 None。"""
     for col in columns:
         if col not in df.columns:
             df[col] = None
     return df[columns].copy()
 
 
-# ---- 主函数 ----
 
 def parse_excel(input_xlsx, output_labels_csv, output_candidates_csv):
-    """把 Excel 解析成两个 CSV 文件。"""
     df = pd.ExcelFile(input_xlsx).parse(0)
 
-    # 判断是哪种格式
+
     if has_split_columns(df):
         base = normalize_label_column(df)
     else:
         base = parse_compact_sheet(df)
 
-    # 输出 labels
+    # labels
     labels = base[["name_1", "email_1", "name_2", "email_2", "label"]].copy()
     Path(output_labels_csv).parent.mkdir(parents=True, exist_ok=True)
     labels.to_csv(output_labels_csv, index=False)
 
-    # 输出 candidates
+    # candidates
     candidate_columns = [
         "name_1", "email_1", "name_2", "email_2",
         "c1", "c2", "c3.1", "c3.2", "c4", "c5", "c6", "c7"
@@ -161,11 +143,10 @@ def parse_excel(input_xlsx, output_labels_csv, output_candidates_csv):
     Path(output_candidates_csv).parent.mkdir(parents=True, exist_ok=True)
     candidates.to_csv(output_candidates_csv, index=False)
 
-    print(f"✅ Output saved: {output_labels_csv}")
-    print(f"✅ Output saved: {output_candidates_csv}")
+    print(f"Output saved: {output_labels_csv}")
+    print(f"Output saved: {output_candidates_csv}")
 
 
-# ---- 调试入口 ----
 if __name__ == "__main__":
     parse_excel(
         input_xlsx="devs_similarity_t=0.65.xlsx",

@@ -3,7 +3,7 @@ import jellyfish
 from rapidfuzz.distance import JaroWinkler
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from preprocess import normalize_name, split_name, normalize_email
+from src.preprocess import normalize_name, split_name, normalize_email
 
 
 def jaro_winkler_sim(a, b):
@@ -19,6 +19,10 @@ def tfidf_similarity(a, b):
         a = ""
     if not b:
         b = ""
+
+    if not a.strip() and not b.strip():
+        return 0.0
+    
     vectorizer = TfidfVectorizer(analyzer="char_wb", ngram_range=(2, 4))
     X = vectorizer.fit_transform([a, b])
     return float(cosine_similarity(X[0], X[1])[0, 0])
@@ -72,30 +76,24 @@ def build_features(pair1, pair2):
 
     feats = {}
 
-    # Similar names
     feats["name_jw"] = jaro_winkler_sim(n1, n2)
     feats["name_tfidf"] = tfidf_similarity(n1, n2)
 
-    # Similarity of email prefix, first name, and last name
     feats["prefix_jw"] = jaro_winkler_sim(p1, p2)
     feats["first_jw"] = jaro_winkler_sim(f1, f2)
     feats["last_jw"] = jaro_winkler_sim(l1, l2)
 
-    # Similar pronunciation
     feats["phone_first"] = phonetic_similarity(f1, f2)
     feats["phone_last"] = phonetic_similarity(l1, l2)
 
-    # Domain name, exact match, abbreviation
     feats["same_domain"] = int(d1 == d2 and d1 != "")
     feats["firstname_equal"] = int(f1 == f2 and f1 != "")
     feats["lastname_equal"] = int(l1 == l2 and l1 != "")
     feats["initials_equal"] = int(get_initials(name1) == get_initials(name2) and get_initials(name1) != "")
 
-    # Does the email address prefix contain first name + last name?
     feats["prefix_has_fl"] = prefix_contains_name(f1, l1, p2)
     feats["prefix_has_fl_rev"] = prefix_contains_name(f2, l2, p1)
 
-    # Name length and prefix length similarity
     if max(len(n1), len(n2)) > 0:
         feats["len_sim_name"] = 1 - abs(len(n1) - len(n2)) / max(len(n1), len(n2))
     else:

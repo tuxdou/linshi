@@ -1,6 +1,5 @@
-# src/blocking.py
 from collections import defaultdict
-from preprocess import split_name, normalize_email, normalize_name
+from src.preprocess import split_name, normalize_email, normalize_name
 
 COMMON_DOMAINS = {
     "gmail.com", "googlemail.com", "yahoo.com", "outlook.com", "hotmail.com",

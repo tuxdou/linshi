@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from features import build_features
+from src.features import build_features
 
 def build_dataset(candidates_csv, labels_csv, out_csv):
     cands = pd.read_csv(candidates_csv)
